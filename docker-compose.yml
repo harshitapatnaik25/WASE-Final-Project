@@ -1,26 +1,26 @@
 version: "3.9"
 
 services:
+  jenkins:
+    image: jenkins/jenkins:lts
+    container_name: jenkins
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+      - "50000:50000"
+    volumes:
+      - jenkins_home:/var/jenkins_home
+
   slack-bot:
     build: .
     container_name: slack_bot
     restart: unless-stopped
     env_file:
       - .env
-    volumes:
-      - ./:/app  # useful for dev, mounts your local code into the container
     depends_on:
       - jenkins
-
-  jenkins:
-    image: jenkins/jenkins:lts
-    container_name: jenkins
-    restart: unless-stopped
-    ports:
-      - "8080:8080"       # Jenkins web UI
-      - "50000:50000"     # Jenkins agent
-    volumes:
-      - jenkins_home:/var/jenkins_home
+    working_dir: /app
+    command: ["python", "app.py"]
 
 volumes:
   jenkins_home:
